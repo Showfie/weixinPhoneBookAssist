@@ -1,6 +1,6 @@
 # weixinPhoneBookAssist 微信电话本助手
 
-WeixinPhoneBookAssist
+WeixinPhoneBookAssist V1.0.2
 	1 Auto unlock device and launch WeixinPhoneBook when notification arrives;
 	2 Relock device when VOIP call finished.
 	3 Auto relock device when home button pressed or App Switcher activated.
