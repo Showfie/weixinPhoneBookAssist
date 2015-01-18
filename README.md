@@ -1,5 +1,9 @@
 # weixinPhoneBookAssist 微信电话本助手
 
+V1.0.3
+1 Relaunch previous app after the call finished.
+1 通话结束后返回之前的App；
+
 WeixinPhoneBookAssist V1.0.2
 1 Auto unlock device and launch WeixinPhoneBook when notification arrives;
 2 Relock device when VOIP call finished.

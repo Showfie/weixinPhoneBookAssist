@@ -24,7 +24,8 @@
 
 static BOOL _shouldAutoRelockDevice = FALSE;
 static BOOL _shouldCachePS = TRUE;
-static NSMutableDictionary *_cache = nil;
+static BOOL _shouldRelaunchPreviousApp = FALSE;
+static SBApplication *_frontMostApp = nil;
 
 static void unlockDevice()
 {
@@ -44,6 +45,11 @@ static void unlockDevice()
 		//NSLog(@"com.showfie.weixinPhonebookAssist: Device unlocked.");
 		}
 	}
+	else
+	{
+		_frontMostApp = [(SpringBoard *)[UIApplication sharedApplication] _accessibilityFrontMostApplication];
+		_shouldRelaunchPreviousApp = TRUE;
+	}
 }
 
 static void weixinPhoneBookRelockDeviceHandler(CFNotificationCenterRef center,
@@ -52,6 +58,20 @@ static void weixinPhoneBookRelockDeviceHandler(CFNotificationCenterRef center,
 						void const * object,
 						CFDictionaryRef userInfo)
 {
+	if(_shouldRelaunchPreviousApp)
+	{
+		if(_frontMostApp)
+		{
+			[[UIApplication sharedApplication] launchApplicationWithIdentifier:[_frontMostApp bundleIdentifier]
+																	suspended:false];
+// 			NSLog(@"com.showfie.weixinPhonebookAssist: weixinPhoneBookRelockDeviceHandler frontmostApp %@.", [_frontMostApp bundleIdentifier]);
+		}
+		else
+			// return to homeScreen
+			[[objc_getClass("SBUIController") sharedInstance] clickedMenuButton];
+		_shouldRelaunchPreviousApp = FALSE;
+	}
+	
 	if(_shouldAutoRelockDevice)
 	{
 		if(![[objc_getClass("SBLockScreenManager") sharedInstance] isUILocked])
@@ -101,14 +121,8 @@ static void notifySpringBoardWithMessage(NSString *message)
 						incallNoti,
 						NULL,
 						CFNotificationSuspensionBehaviorDeliverImmediately);
-	
-	// initialize _cache dictionary
-	if(!_cache)
-	{
-		_cache = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"YES", @"inited", nil];
-		NSLog(@"com.showfie.weixinPhonebookAssist: SpringBoard _cache inited %@.", _cache);
-	}
 }
+
 %end
 
 %hook SBUIController
@@ -164,7 +178,7 @@ static void notifySpringBoardWithMessage(NSString *message)
 {
 	%orig;
 	//NSLog(@"com.showfie.weixinPhonebookAssist: SBRemoteNotificationServer connection %@ didReceiveIncomingMessage %@ topic %@ userinfo %@.", arg1, arg2, [arg2 topic], [arg2 userInfo]);
-	NSLog(@"com.showfie.weixinPhonebookAssist: SBRemoteNotificationServer connection %@ didReceiveIncomingMessage %@.", arg1, arg2);
+// 	NSLog(@"com.showfie.weixinPhonebookAssist: SBRemoteNotificationServer connection %@ didReceiveIncomingMessage %@.", arg1, arg2);
 	
 	if(![[objc_getClass("SBTelephonyManager") sharedTelephonyManager ] inCall])
 	{
@@ -205,7 +219,7 @@ static void notifySpringBoardWithMessage(NSString *message)
 -(void)presentVoipCallLocalNotification:(id)notification
 {
 	%orig;
-	NSLog(@"com.showfie.weixinPhonebookAssist: WXCPushNotificationMgr presentVoipCallLocalNotification %@.", notification);
+// 	NSLog(@"com.showfie.weixinPhonebookAssist: WXCPushNotificationMgr presentVoipCallLocalNotification %@.", notification);
 	/*
 	NSDictionary *d = [NSDictionary dictionaryWithObject:@"onFinishVoipCall"
                                                   forKey:@"status"];
@@ -254,14 +268,14 @@ static void notifySpringBoardWithMessage(NSString *message)
 -(void)OnBeHanguped:(id)hanguped ErrNo:(int)no
 {
 	%orig;
-	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView onBeHanguped %@ ErrNo %d.", hanguped, no);
+// 	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView onBeHanguped %@ ErrNo %d.", hanguped, no);
 	
 	notifySpringBoardWithMessage(WEIXINADDRESSBOOKRELOCKNOTIFICATION);
 }
 -(void)onFinishVoipCall
 {
 	%orig;
-	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView onFinishVoipCall.");
+// 	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView onFinishVoipCall.");
 	notifySpringBoardWithMessage(WEIXINADDRESSBOOKRELOCKNOTIFICATION);
 }
 - (void)handleAcceptButton:(id)arg1
@@ -272,7 +286,7 @@ static void notifySpringBoardWithMessage(NSString *message)
 - (void)handleDeclineButton:(id)arg1
 {
 	%orig;
-	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView handleDeclineButton %@.", arg1);
+// 	NSLog(@"com.showfie.weixinPhonebookAssist: WXCVoipVoiceReceiverView handleDeclineButton %@.", arg1);
 	
 	notifySpringBoardWithMessage(WEIXINADDRESSBOOKRELOCKNOTIFICATION);
 }

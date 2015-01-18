@@ -1,9 +1,9 @@
 Package: com.Showfie.weixinPhoneBookAssist
 Name: weixinPhoneBookAssist
 Depends: mobilesubstrate
-Version: 1.0.2
+Version: 1.0.3
 Architecture: iphoneos-arm
 Description: Weixin Phonebook incoming calls auto popup just like cellular calls.
-Maintainer: Chase Yee
-Author: Chase Yee chase.yee@gmail.com
+Maintainer: Chase Yee(chase.yee@gmail.com)
+Author: Chase Yee(chase.yee@gmail.com)
 Section: Tweaks
